@@ -1,0 +1,13 @@
+
+# step0
+
+copy all phones from website: https://humanum.arts.cuhk.edu.hk/Lexis/lexi-can/ and http://elearning.kccshatin.edu.hk/p2t/pth1341.pdf
+
+# step1
+
+change the format of the phone list to a real dict in py
+
+    python3 process_phone_dict.py
+
+# step2
+
