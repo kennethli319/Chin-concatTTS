@@ -12,7 +12,7 @@ python3 word_syn.py 翻譯都要執行多個翻譯系統，這帶來巨大的計
 1 - check sim chin / tran chin, if option given = follow option, if not check number of words in sim, if > 50%, sim else 
 2 - cantonese corpus = very slow -> change it to a txt file with count / % only 
 3 - change chin char (simplified chinese vs traditional chinese)
-4 - POS tag
+4 - word seg and POS tag
 5 - multi pronouncaition for the same word -> depends on the previous history : can be solve by POS + history
 """ 
 
@@ -56,20 +56,16 @@ import pycantonese as pc
 # (1.1) - Argv to argparse
 parser = argparse.ArgumentParser(
     description='A basic text-to-speech app for Cantonese and Mandarin that synthesises an input phrase using unit selection.')
+# Path
 parser.add_argument('--canPhones', default="./jyutping-wong-44100-v9/jyutping-wong/", help="Folder containing Cantonese wavs")
 parser.add_argument('--mandPhones', default="./pinyin-yali-44100/", help="Folder containing Mandarin wavs")
-parser.add_argument('--language', "-l", action="store", dest="language", type=str, help="Choose the language for output",
-                    default=None)
-parser.add_argument('--play', '-p', action="store_true", default=False, help="Play the output audio")
-parser.add_argument('--outfile', '-o', action="store", dest="outfile", type=str, help="Save the output audio to a file",
-                    default=None)
+# User interface
 parser.add_argument('phrase', nargs=1, help="The phrase to be synthesised")
-parser.add_argument('--spell', '-s', action="store_true", default=False,
-                    help="Spell the phrase instead of pronouncing it")
-parser.add_argument('--crossfade', '-c', action="store_true", default=False,
-					help="Enable slightly smoother concatenation by cross-fading between diphone tokens")
-parser.add_argument('--volume', '-v', default=None, type=int,
-                    help="An int between 0 and 100 representing the desired volume")
+parser.add_argument('--language', "-l", action="store", dest="language", type=str, help="Choose the language for output", default=None)
+parser.add_argument('--play', '-p', action="store_true", default=False, help="Play the output audio")
+parser.add_argument('--outfile', '-o', action="store", dest="outfile", type=str, help="Save the output audio to a file", default=None)
+parser.add_argument('--crossfade', '-c', action="store_true", default=False, help="Enable slightly smoother concatenation by cross-fading between diphone tokens")
+parser.add_argument('--volume', '-v', default=None, type=int, help="An int between 0 and 100 representing the desired volume")
 
 # (1.2) Parse arguments from the command line
 try: 
@@ -129,11 +125,32 @@ class Char:
         string = re.sub(r"[：；。？！]", "sil_400", string)
         return string
 
+# modified from https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/373914/
+# DOESNT WORK SAD
+def strB2Q(ustring):
+    """把字串半形轉全形"""
+    rstring = ""
+    for uchar in ustring:
+        inside_code=ord(uchar)
+    if inside_code<0x0020 or inside_code>0x7e:   #不是半形字元就返回原來的字元
+        rstring  = uchar
+    if inside_code==0x0020: #除了空格其他的全形半形的公式為:半形=全形-0xfee0
+        inside_code=0x3000
+    else:
+        inside_code =0xfee0
+        rstring  = chr(inside_code)
+    return rstring
+
+def normalizarion(inputString):
+    outputString = strB2Q(inputString)
+    return outputString
+
 # Main part
 
 # input seq get
 inputseq = sys.argv[1]
 inputseq = Seq(inputseq)
+# inputseq = Seq(normalizarion(inputseq))
 
 # hkcan_corpus = pc.hkcancor()
 # for each in inputseq.seqitem:
