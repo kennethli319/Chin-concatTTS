@@ -15,12 +15,16 @@ Example:
     python word_syn.py 翻譯都要執行多個翻譯系統，這帶來巨大的計算成本。如今，許多領域都正在被神經網路技術顛覆。 -l c
 """
 
-# PROBLEMS
+# LOGBK and PROBLEMS
 """
+16DEC - Done word-wav data in Can and Manderin
+18DEC - Done overall documentation
+
 1 - check sim chin / tran chin, if option given = follow option, if not check number of words in sim, if > 50%, mandarin else cantonese
 2 - cantonese corpus = very slow -> change it to a txt file with count / % only 
-3 - change chin char (simplified chinese vs traditional chinese)
-4 - word seg and POS tag
+3 - [DONE-18dec] change chin char (simplified chinese vs traditional chinese)
+4 - [H-DONE-18dec] word seg: use pku module, but not yet merge to the structure
+5 - POS tag
 5 - multi pronouncaition for the same word -> depends on the previous history : can be solve by POS + history(or word seg token)
 """ 
 
