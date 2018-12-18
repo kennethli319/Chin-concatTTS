@@ -209,10 +209,11 @@ class Char:
 if __name__ == "__main__":
         
     # Convert S2T or T2S to avoid mixed variaty text encoding
-    args.phrase[0] = text_conversion(args.phrase[0])
 
     # input seq get
     inputseq = args.phrase[0]
+    inputseq = text_conversion(inputseq)
+    
     inputseq = Seq(inputseq)
 
     # FOLLOWUP: SUPER SLOW!
