@@ -112,25 +112,16 @@ dictpath = ""
 
 def check_lang(input_sequence):
     """Determine the language variaty of the input sequence and auto-select the langugae for synthesis."""
-    # maybe https://github.com/BYVoid/OpenCC
     # FOLLOWUP!
     language = 'p'
-
-    if language == 'p':
-        cc = OpenCC('t2s')  # convert from Simplified Chinese to Traditional Chinese
-        args.phrase[0] = cc.convert(input_sequence)
-
-    if language == 'c':
-        cc = OpenCC('s2t')  # convert from Simplified Chinese to Traditional Chinese
-        args.phrase[0] = cc.convert(input_sequence)
-
     return language
 
 def assign_paths(language):
     """Select the required database according to the option given. If no language option is given, auto select by check_lang()."""    
     # If no selected option, auto-select
     if language == None:
-        language = check_lang(args.phrase[0])    
+        language = check_lang(args.phrase[0])  
+        args.language = language  
     # Cantonese
     if language == "c":
         path = args.canPhones
@@ -141,8 +132,18 @@ def assign_paths(language):
         dictpath = "phonedict_dict_pth_perc"
     return path, dictpath
 
+def conversion(input_sequence):
+    # S2T/T2S Conversion by OpenCC (https://github.com/BYVoid/OpenCC)
+    if args.language == 'p':
+        cc = OpenCC('t2s')  # convert from Traditional Chinese to Simplified Chinese
+    elif args.language == 'c':
+        cc = OpenCC('s2t')  # convert from Simplified Chinese to Traditional Chinese
+
+    return cc.convert(input_sequence)
+
 # (1.3) Select reuired database/dictionary accoring to the given lang option
 path, dictpath = assign_paths(args.language)
+args.phrase[0] = conversion(args.phrase[0])
 
 # (PART 2) Define classes
 
