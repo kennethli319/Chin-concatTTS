@@ -2,7 +2,9 @@
 
 # Usage
 """
+# New user please install: pip3 install -U pycantonese
 Usage:      python3 word_syn.py <input_sequence> <language: c or p>
+
 python3 word_syn.py 翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。 -l p
 python3 word_syn.py 翻譯都要執行多個翻譯系統，這帶來巨大的計算成本。如今，許多領域都正在被神經網路技術顛覆。 -l c
 """
