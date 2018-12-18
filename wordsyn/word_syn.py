@@ -12,7 +12,7 @@ Example:    python3 word_syn.py 中文 c
 2 - cantonese corpus = very slow -> change it to a txt file with count / % only 
 3 - change chin char (simplified chinese vs traditional chinese)
 4 - POS tag
-5 - 
+5 - multi pronouncaition for the same word -> depends on the previous history : can be solve by POS + history
 """ 
 
 # Pipeline
