@@ -5,6 +5,7 @@
 New user please install: 
     pip install -U pycantonese
     pip install opencc-python-reimplemented
+    pip install pkuseg
 
 Usage:
     python word_syn.py <input_sequence> <language: c or p>
@@ -33,9 +34,13 @@ STRUCTURE
                     iii)    Tone
 
 PROCEDURE
+[PREPARE]
 0 - Import necessary libraries
-1 - Argv management and global variables
-2 - Define Classes
+1 - Argv management and declear global variables
+2 - Define Methods and Classes
+    2.1 - Methods
+    2.2 - Classes
+[MAIN]
 3 - Frontend :
     3.1 - Get sequence
     3.2 - Normalization -> remove (unnecessary) punct, change all remaining punct to 全/半形
@@ -70,6 +75,8 @@ import simpleaudio
 import pycantonese as pc
 # New user please install: pip install opencc-python-reimplemented
 from opencc import OpenCC
+# New user please install: pip install pkuseg
+import pkuseg
 
 # (PART 1) Argv management and global variables
 # (1.1) - Argv to argparse
@@ -106,9 +113,10 @@ except:
         print("\t  -outfile \t<string: filename>")
     exit()
 
+# (1.3) Global variables
 def check_lang(input_sequence):
     """Determine the language variaty of the input sequence and auto-select the langugae for synthesis."""
-    # FOLLOWUP!
+    # FOLLOWUP!: add classification methods
     language = 'p'
     return language
 
@@ -128,6 +136,31 @@ def assign_paths(language):
         dictpath = "phonedict_dict_pth_perc"
     return path, dictpath
 
+# (1.3) Select reuired database/dictionary accoring to the given lang option
+path, dictpath = assign_paths(args.language)
+
+# (PART 2) Define Methods and Classes
+# (2.1) Methods
+def strB2Q(ustring):
+    # modified from https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/373914/
+    # DOESNT WORK SAD
+    """把字串半形轉全形"""
+    rstring = ""
+    for uchar in ustring:
+        inside_code=ord(uchar)
+    if inside_code<0x0020 or inside_code>0x7e:   #不是半形字元就返回原來的字元
+        rstring  = uchar
+    if inside_code==0x0020: #除了空格其他的全形半形的公式為:半形=全形-0xfee0
+        inside_code=0x3000
+    else:
+        inside_code =0xfee0
+        rstring  = chr(inside_code)
+    return rstring
+
+def normalizarion(inputString):
+    outputString = strB2Q(inputString)
+    return outputString
+
 def text_conversion(input_sequence):
     """S2T/T2S Conversion by OpenCC (https://github.com/BYVoid/OpenCC)"""
     # convert from Traditional Chinese to Simplified Chinese
@@ -138,16 +171,7 @@ def text_conversion(input_sequence):
         cc = OpenCC('s2t')  
     return cc.convert(input_sequence)
 
-# (1.3) Global variables
-path = ""
-dictpath = ""
-# (1.4) Select reuired database/dictionary accoring to the given lang option
-path, dictpath = assign_paths(args.language)
-# (1.5) Convert S2T or T2S to avoid mixed variaty text encoding
-args.phrase[0] = text_conversion(args.phrase[0])
-
-# (PART 2) Define classes
-
+# (2.2) Classes
 class Seq:
     """
     seq info, contain char info in each item in a list
@@ -177,68 +201,60 @@ class Char:
         string = re.sub(r"[：；。？！]", "sil_400", string)
         return string
 
-# modified from https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/373914/
-# DOESNT WORK SAD
-def strB2Q(ustring):
-    """把字串半形轉全形"""
-    rstring = ""
-    for uchar in ustring:
-        inside_code=ord(uchar)
-    if inside_code<0x0020 or inside_code>0x7e:   #不是半形字元就返回原來的字元
-        rstring  = uchar
-    if inside_code==0x0020: #除了空格其他的全形半形的公式為:半形=全形-0xfee0
-        inside_code=0x3000
-    else:
-        inside_code =0xfee0
-        rstring  = chr(inside_code)
-    return rstring
+# Main module
+if __name__ == "__main__":
+        
+    # Convert S2T or T2S to avoid mixed variaty text encoding
+    args.phrase[0] = text_conversion(args.phrase[0])
 
-def normalizarion(inputString):
-    outputString = strB2Q(inputString)
-    return outputString
+    # input seq get
+    inputseq = args.phrase[0]
+    inputseq = Seq(inputseq)
 
-# Main part
+    # FOLLOWUP: SUPER SLOW!
+    def word_seg(input_string):
+        """Word seg"""
+        seg = pkuseg.pkuseg()   #以默认配置加载模型
+        text = seg.cut(input_string)	#进行分词
+        return text
 
-# input seq get
-inputseq = args.phrase[0]
-inputseq = Seq(inputseq)
-# inputseq = Seq(normalizarion(inputseq))
+    # inputseq = Seq(normalizarion(inputseq))
 
-# hkcan_corpus = pc.hkcancor()
-# for each in inputseq.seqitem:
-#     wordinfo = hkcan_corpus.search(character=each)
-    # pprint(len(wordinfo))
-    # pprint(wordinfo[:3])
+    # hkcan_corpus = pc.hkcancor()
+    # for each in inputseq.seqitem:
+    #     wordinfo = hkcan_corpus.search(character=each)
+        # pprint(len(wordinfo))
+        # pprint(wordinfo[:3])
 
-# Turn to class instance
-index_of_item = 0
-for each in inputseq.seqitem:
-    inputseq.seqitem[index_of_item] = Char(each)
-    index_of_item += 1
+    # Turn to class instance
+    index_of_item = 0
+    for each in inputseq.seqitem:
+        inputseq.seqitem[index_of_item] = Char(each)
+        index_of_item += 1
 
-for each in inputseq.seqitem:
+    for each in inputseq.seqitem:
 
-    each.eachphone = simpleaudio.Audio()
+        each.eachphone = simpleaudio.Audio()
 
-    # Audio instance to handle audio information
-    sound_obj = simpleaudio.Audio(rate=48000)
+        # Audio instance to handle audio information
+        sound_obj = simpleaudio.Audio(rate=48000)
 
-    if each.phone[0] in ["sil_200","sil_400"]:
-        if each.phone[0] == "sil_200":
-            sound_obj.create_noise(9600,0)
-        if each.phone[0] == "sil_400":
-            sound_obj.create_noise(19200,0)
-        each.eachphone.data = sound_obj.data
-    else:
-        phone = str(each.phone[0])
-        if not phone[-1].isdigit():
-            phone = phone + "5"
-        each.path = path + phone + ".wav"
-        each.eachphone.load(each.path)
+        if each.phone[0] in ["sil_200","sil_400"]:
+            if each.phone[0] == "sil_200":
+                sound_obj.create_noise(9600,0)
+            if each.phone[0] == "sil_400":
+                sound_obj.create_noise(19200,0)
+            each.eachphone.data = sound_obj.data
+        else:
+            phone = str(each.phone[0])
+            if not phone[-1].isdigit():
+                phone = phone + "5"
+            each.path = path + phone + ".wav"
+            each.eachphone.load(each.path)
 
-output = simpleaudio.Audio()
+    output = simpleaudio.Audio()
 
-for each in inputseq.seqitem:
-    output.data = np.concatenate((output.data, each.eachphone.data))
+    for each in inputseq.seqitem:
+        output.data = np.concatenate((output.data, each.eachphone.data))
 
-output.play()
+    output.play()
