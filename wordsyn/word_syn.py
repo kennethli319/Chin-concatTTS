@@ -132,18 +132,20 @@ def assign_paths(language):
         dictpath = "phonedict_dict_pth_perc"
     return path, dictpath
 
-def conversion(input_sequence):
-    # S2T/T2S Conversion by OpenCC (https://github.com/BYVoid/OpenCC)
+def text_conversion(input_sequence):
+    """S2T/T2S Conversion by OpenCC (https://github.com/BYVoid/OpenCC)"""
+    # convert from Traditional Chinese to Simplified Chinese
     if args.language == 'p':
-        cc = OpenCC('t2s')  # convert from Traditional Chinese to Simplified Chinese
+        cc = OpenCC('t2s') 
+    # convert from Simplified Chinese to Traditional Chinese
     elif args.language == 'c':
-        cc = OpenCC('s2t')  # convert from Simplified Chinese to Traditional Chinese
-
+        cc = OpenCC('s2t')  
     return cc.convert(input_sequence)
 
-# (1.3) Select reuired database/dictionary accoring to the given lang option
+# (1.4) Select reuired database/dictionary accoring to the given lang option
 path, dictpath = assign_paths(args.language)
-args.phrase[0] = conversion(args.phrase[0])
+# (1.5) Convert S2T or T2S to avoid mixed variaty text encoding
+args.phrase[0] = text_conversion(args.phrase[0])
 
 # (PART 2) Define classes
 
