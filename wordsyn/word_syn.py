@@ -15,7 +15,7 @@ python3 word_syn.py 翻譯都要執行多個翻譯系統，這帶來巨大的計
 2 - cantonese corpus = very slow -> change it to a txt file with count / % only 
 3 - change chin char (simplified chinese vs traditional chinese)
 4 - word seg and POS tag
-5 - multi pronouncaition for the same word -> depends on the previous history : can be solve by POS + history
+5 - multi pronouncaition for the same word -> depends on the previous history : can be solve by POS + history(or word seg token)
 """ 
 
 # Pipeline
@@ -59,6 +59,7 @@ import json, sys, re, argparse
 import numpy as np
 from pprint import pprint
 # Please put the py file in the same dir
+# FOLLOWUP: later should optimize this and re-write the load methods
 import simpleaudio
 # New user please install: pip3 install -U pycantonese
 import pycantonese as pc
@@ -75,9 +76,8 @@ parser.add_argument('phrase', nargs=1, help="The phrase to be synthesised")
 parser.add_argument('--language', "-l", action="store", dest="language", type=str, help="Choose the language for output", default=None)
 parser.add_argument('--play', '-p', action="store_true", default=False, help="Play the output audio")
 parser.add_argument('--outfile', '-o', action="store", dest="outfile", type=str, help="Save the output audio to a file", default=None)
-parser.add_argument('--crossfade', '-c', action="store_true", default=False, help="Enable slightly smoother concatenation by cross-fading between diphone tokens")
 parser.add_argument('--volume', '-v', default=None, type=int, help="An int between 0 and 100 representing the desired volume")
-# FOLLOWUP: Add -> 
+# FOLLOWUP: Add -> voice optioins? speed? emotion? 
 
 # (1.2) Parse arguments from the command line
 try: 
@@ -103,12 +103,29 @@ except:
 path = ""
 dictpath = ""
 
-if args.language == "c":
-    path = args.canPhones
-    dictpath = 'phonedict_dict'
-if args.language == "p":
-    path = args.mandPhones
-    dictpath = "phonedict_dict_pth_perc"
+def check_lang(input_sequence):
+    """Determine the language variaty of the input sequence and auto-select the langugae for synthesis."""
+    # maybe https://github.com/BYVoid/OpenCC
+    # FOLLOWUP!
+    language = 'p'
+    return language
+
+def assign_paths(language):
+    """Select the required database according to the option given. If no language option is given, auto select by check_lang()."""    
+    # If no selected option, auto-select
+    if language == None:
+        language = check_lang(args.phrase[0])    
+    # Cantonese
+    if language == "c":
+        path = args.canPhones
+        dictpath = 'phonedict_dict'
+    # Mandarin
+    elif language == "p":
+        path = args.mandPhones
+        dictpath = "phonedict_dict_pth_perc"
+    return path, dictpath
+
+path, dictpath = assign_paths(args.language)
 
 # (PART 2) Define classes
 
