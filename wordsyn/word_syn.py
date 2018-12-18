@@ -39,6 +39,11 @@ PROCEDURE
     3.5 - POS to token seq
     3.6 - 
 4 - Waveform Generation
+    4.1 - WORD UNIT VERION
+        4.1.1 - load all required word wav
+        4.1.2 - smoothing on boundaries?
+        4.1.3 - output fine tune: eg volume/speed 1x 1.5x 2x?
+    4.2 - DIPHONE UNIT VERSION
 """
 
 # (Part 0) - Import necessary libraries
