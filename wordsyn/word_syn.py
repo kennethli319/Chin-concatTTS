@@ -11,7 +11,7 @@ python3 word_syn.py 翻譯都要執行多個翻譯系統，這帶來巨大的計
 
 # PROBLEMS
 """
-1 - check sim chin / tran chin, if option given = follow option, if not check number of words in sim, if > 50%, sim else 
+1 - check sim chin / tran chin, if option given = follow option, if not check number of words in sim, if > 50%, mandarin else cantonese
 2 - cantonese corpus = very slow -> change it to a txt file with count / % only 
 3 - change chin char (simplified chinese vs traditional chinese)
 4 - word seg and POS tag
@@ -36,21 +36,26 @@ PROCEDURE
     3.2 - Normalization -> remove (unnecessary) punct, change all remaining punct to 全/半形
     3.3 - Classify cantonese / mandarin / english / mixture
     3.4 - Word seg -> to tokens
-    3.5 - POS to token seq
-    3.6 - 
+    3.5 - POS of token seq
+    3.6 - Based on POS -> check the phones/words/diphones (from dict)
+    3.7 - Change the phone/diphone/word-pron seq according to Consonant-Vowel Coarticulation rules in that lang
+    3.8 - Intonation
+    3.9 - 
 4 - Waveform Generation
     4.1 - WORD UNIT VERION
         4.1.1 - load all required word wav
         4.1.2 - smoothing on boundaries?
         4.1.3 - output fine tune: eg volume/speed 1x 1.5x 2x?
     4.2 - DIPHONE UNIT VERSION
+5 - Output
+    5.1 - Output wav
+    5.2 - Output all relations
+    5.3 - Output all parameters
+    5.4 - Output full info
 """
 
 # (Part 0) - Import necessary libraries
-import json
-import sys
-import re 
-import argparse
+import json, sys, re, argparse
 import numpy as np
 from pprint import pprint
 # Please put the py file in the same dir
@@ -59,11 +64,10 @@ import simpleaudio
 import pycantonese as pc
 
 # (PART 1) Argv management and global variables
-
 # (1.1) - Argv to argparse
 parser = argparse.ArgumentParser(
     description='A basic text-to-speech app for Cantonese and Mandarin that synthesises an input phrase using unit selection.')
-# Path
+# Default paths
 parser.add_argument('--canPhones', default="./jyutping-wong-44100-v9/jyutping-wong/", help="Folder containing Cantonese wavs")
 parser.add_argument('--mandPhones', default="./pinyin-yali-44100/", help="Folder containing Mandarin wavs")
 # User interface
@@ -73,6 +77,7 @@ parser.add_argument('--play', '-p', action="store_true", default=False, help="Pl
 parser.add_argument('--outfile', '-o', action="store", dest="outfile", type=str, help="Save the output audio to a file", default=None)
 parser.add_argument('--crossfade', '-c', action="store_true", default=False, help="Enable slightly smoother concatenation by cross-fading between diphone tokens")
 parser.add_argument('--volume', '-v', default=None, type=int, help="An int between 0 and 100 representing the desired volume")
+# FOLLOWUP: Add -> 
 
 # (1.2) Parse arguments from the command line
 try: 
