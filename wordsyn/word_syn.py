@@ -106,10 +106,6 @@ except:
         print("\t  -outfile \t<string: filename>")
     exit()
 
-# (1.3) Global variables
-path = ""
-dictpath = ""
-
 def check_lang(input_sequence):
     """Determine the language variaty of the input sequence and auto-select the langugae for synthesis."""
     # FOLLOWUP!
@@ -142,6 +138,9 @@ def text_conversion(input_sequence):
         cc = OpenCC('s2t')  
     return cc.convert(input_sequence)
 
+# (1.3) Global variables
+path = ""
+dictpath = ""
 # (1.4) Select reuired database/dictionary accoring to the given lang option
 path, dictpath = assign_paths(args.language)
 # (1.5) Convert S2T or T2S to avoid mixed variaty text encoding
@@ -149,13 +148,17 @@ args.phrase[0] = text_conversion(args.phrase[0])
 
 # (PART 2) Define classes
 
-# seq info, contain char info in each item in a list
 class Seq:
+    """
+    seq info, contain char info in each item in a list
+    """
     def __init__(self, string):
         self.seqitem = list(string)
 
-# char info, each char info
 class Char:
+    """
+    char info, each char info
+    """
     # prepare phone dict
     phonedict = dict([])
     f = open(dictpath, 'r')
