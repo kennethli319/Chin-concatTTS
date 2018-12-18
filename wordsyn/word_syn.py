@@ -2,11 +2,16 @@
 
 # Usage
 """
-# New user please install: pip3 install -U pycantonese
-Usage:      python3 word_syn.py <input_sequence> <language: c or p>
+New user please install: 
+    pip install -U pycantonese
+    pip install opencc-python-reimplemented
 
-python3 word_syn.py 翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。 -l p
-python3 word_syn.py 翻譯都要執行多個翻譯系統，這帶來巨大的計算成本。如今，許多領域都正在被神經網路技術顛覆。 -l c
+Usage:
+    python word_syn.py <input_sequence> <language: c or p>
+
+Example:
+    python word_syn.py 翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。 -l p
+    python word_syn.py 翻譯都要執行多個翻譯系統，這帶來巨大的計算成本。如今，許多領域都正在被神經網路技術顛覆。 -l c
 """
 
 # PROBLEMS
@@ -61,8 +66,10 @@ from pprint import pprint
 # Please put the py file in the same dir
 # FOLLOWUP: later should optimize this and re-write the load methods
 import simpleaudio
-# New user please install: pip3 install -U pycantonese
+# New user please install: pip install -U pycantonese
 import pycantonese as pc
+# New user please install: pip install opencc-python-reimplemented
+from opencc import OpenCC
 
 # (PART 1) Argv management and global variables
 # (1.1) - Argv to argparse
@@ -108,6 +115,15 @@ def check_lang(input_sequence):
     # maybe https://github.com/BYVoid/OpenCC
     # FOLLOWUP!
     language = 'p'
+
+    if language == 'p':
+        cc = OpenCC('t2s')  # convert from Simplified Chinese to Traditional Chinese
+        args.phrase[0] = cc.convert(input_sequence)
+
+    if language == 'c':
+        cc = OpenCC('s2t')  # convert from Simplified Chinese to Traditional Chinese
+        args.phrase[0] = cc.convert(input_sequence)
+
     return language
 
 def assign_paths(language):
@@ -178,7 +194,7 @@ def normalizarion(inputString):
 # Main part
 
 # input seq get
-inputseq = sys.argv[1]
+inputseq = args.phrase[0]
 inputseq = Seq(inputseq)
 # inputseq = Seq(normalizarion(inputseq))
 
