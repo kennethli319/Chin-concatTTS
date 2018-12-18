@@ -125,6 +125,7 @@ def assign_paths(language):
         dictpath = "phonedict_dict_pth_perc"
     return path, dictpath
 
+# (1.3) Select reuired database/dictionary accoring to the given lang option
 path, dictpath = assign_paths(args.language)
 
 # (PART 2) Define classes
