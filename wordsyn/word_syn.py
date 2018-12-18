@@ -3,8 +3,6 @@
 # Usage
 """
 Usage:      python3 word_syn.py <input_sequence> <language: c or p>
-Example:    python3 word_syn.py 中文 c
-
 python3 word_syn.py 翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。 -l p
 python3 word_syn.py 翻譯都要執行多個翻譯系統，這帶來巨大的計算成本。如今，許多領域都正在被神經網路技術顛覆。 -l c
 """
@@ -31,6 +29,14 @@ PROCEDURE
 0 - Import necessary libraries
 1 - Argv management and global variables
 2 - Define Classes
+3 - Frontend :
+    3.1 - Get sequence
+    3.2 - Normalization -> remove (unnecessary) punct, change all remaining punct to 全/半形
+    3.3 - Classify cantonese / mandarin / english / mixture
+    3.4 - Word seg -> to tokens
+    3.5 - POS to token seq
+    3.6 - 
+4 - Waveform Generation
 """
 
 # (Part 0) - Import necessary libraries
