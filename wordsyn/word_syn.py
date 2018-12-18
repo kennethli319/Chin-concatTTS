@@ -4,6 +4,9 @@
 """
 Usage:      python3 word_syn.py <input_sequence> <language: c or p>
 Example:    python3 word_syn.py 中文 c
+
+python3 word_syn.py 翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。 -l p
+python3 word_syn.py 翻譯都要執行多個翻譯系統，這帶來巨大的計算成本。如今，許多領域都正在被神經網路技術顛覆。 -l c
 """
 
 # PROBLEMS
@@ -126,11 +129,11 @@ class Char:
 inputseq = sys.argv[1]
 inputseq = Seq(inputseq)
 
-hkcan_corpus = pc.hkcancor()
-for each in inputseq.seqitem:
-    wordinfo = hkcan_corpus.search(character=each)
-    pprint(len(wordinfo))
-    pprint(wordinfo[:3])
+# hkcan_corpus = pc.hkcancor()
+# for each in inputseq.seqitem:
+#     wordinfo = hkcan_corpus.search(character=each)
+    # pprint(len(wordinfo))
+    # pprint(wordinfo[:3])
 
 # Turn to class instance
 index_of_item = 0
