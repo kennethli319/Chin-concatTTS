@@ -19,7 +19,7 @@ Example:
 """
 16 DEC - Done word-wav data in Can and Manderin
 18 DEC - Done overall documentation
-19 DEC - (ING) Class structure
+19 DEC - (ING) Class structure -> token -> multichar prob!
 19 DEC - NSW Date conversion
 
 1 - check sim chin / tran chin, if option given = follow option, if not check number of words in sim, if > 50%, mandarin else cantonese
@@ -71,7 +71,7 @@ PROCEDURE
 """
 
 # (Part 0) - Import necessary libraries
-import json, sys, re, argparse
+import json, sys, re, argparse, pickle
 import numpy as np
 from pprint import pprint
 # Please put the py file in the same dir
@@ -335,10 +335,18 @@ class Sequence:
         
         tokenlist = [] 
         for eachtoken in self.tokens:
+            token = ""
             for eachchar in eachtoken.chars:
-                tokenlist.append(eachchar.char)
-        
+                token = token + eachchar.char
+            tokenlist.append(token)
         pprint("List of tokens: {}".format(tokenlist))
+
+        charlist = [] 
+        for eachtoken in self.tokens:
+            for eachchar in eachtoken.chars:
+                charlist.append(eachchar.char)
+        
+        pprint("List of chars: {}".format(charlist))
     # def strB2Q(ustring):
     #     # modified from https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/373914/
     #     # DOESNT WORK SAD
@@ -421,6 +429,14 @@ def save(output_file=None, object=None):
         if ".wav" not in output_file:
             print("*** WARNING: File might not be saved properly if your file extension is not .wav")
 
+def save_pickle(output_file=None, object=None):
+    """
+    Description: Basic user interface to save the audio
+    """
+    if output_file != None:
+        with open(output_file, 'wb') as out:
+            pickle.dump(object, out)
+
 def play_audio(play=False, object=None):
     """
     Description: Basic user interface to play the audio
@@ -498,6 +514,9 @@ def main():
 
     # Step 6 - Save it to the target file (if the user use -o <args.outfile>)
     save(output_file=args.outfile, object=output)
+
+    save_pickle(output_file=args.outfile+'.pickle', object=output)
+
     
     # Step 7 - Play the final sound output (if the user use -p)
     play_audio(play=args.play, object=output)
