@@ -11,8 +11,8 @@ Usage:
     python word_syn.py <input_sequence> <language: c or p>
 
 Example:
-    python3 word_syn.py 1/1/2001，翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。 -l p -p -v 80
-    python3 word_syn.py 1/01/1991，翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。 -l c -p -v 80
+    python3 word_syn.py 1/1/2001，999翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。 -l p -p -v 80
+    python3 word_syn.py 1/01/1991，32翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。 -l c -p -v 80
 """
 
 # LOGBK and PROBLEMS
@@ -300,6 +300,7 @@ class Sequence:
         dict_digit = {"0": "零", "1" : "一", "2" : "二", "3" : "三", "4" : "四", "5" : "五", "6" : "六", "7" : "七", "8" : "八", "9" : "九", "10" : "十"}
         
         number = str(number)
+        number_words = ""
         
         # Contruct number to words
         try:
@@ -308,10 +309,13 @@ class Sequence:
         except:
             # If the expression is not in the dictionary, decompose the number to the ten position and digit position,
             # then recreate it based on the numerical value
-            tens = str(int(number)//10)
+            hunds = str(int(number)//100) 
+            if hunds != '0':
+                number_words = dict_digit[hunds] + "百"
+            tens = str(int(number) % 100 // 10)
             remainder = str(int(number) % 10)
             # Look for their word forms seperatly
-            number_words = dict_digit[tens] + "十" + dict_digit[remainder]
+            number_words = number_words + dict_digit[tens] + "十" + dict_digit[remainder]
         # Return the word form of number expressions
         return number_words
 
