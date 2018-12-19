@@ -153,7 +153,7 @@ path, dictpath = assign_paths(args.language)
 
 (2.2) Classes
     Sequence()  : Sequence of surface utterance, attributes including surface form, list of token objects
-    Tokens()    : List of single/multiple Char instance, attributes including position marker, 
+    Token()    : List of single/multiple Char instance, attributes including position marker, 
     Char()      : Single char
 
 (2.3) User interface functions
@@ -182,8 +182,10 @@ class Sequence:
         self.utterance = string
         self.norm_utterance = self.normalize(self.utterance) 
         # self.tokens = self.word_seg(self.norm_utterance)
-        self.tokens = list(self.norm_utterance)
-        
+        self.tokens = []
+        for each in self.norm_utterance:
+            self.tokens.append(Token(each))
+
     # FOLLOWUP: SUPER SLOW!
     def word_seg(self, string):
         """Word seg"""
@@ -330,8 +332,13 @@ class Sequence:
     def print_seq_info(self):
         pprint("Surface utterance sequence: {}".format(self.utterance))
         pprint("Normalized utterance sequence: {}".format(self.norm_utterance))
-        pprint("List of tokens: {}".format(self.tokens))
         
+        tokenlist = [] 
+        for eachtoken in self.tokens:
+            for eachchar in eachtoken.chars:
+                tokenlist.append(eachchar.char)
+        
+        pprint("List of tokens: {}".format(tokenlist))
     # def strB2Q(ustring):
     #     # modified from https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/373914/
     #     # DOESNT WORK SAD
@@ -352,6 +359,12 @@ class Sequence:
     #     outputString = strB2Q(inputString)
     #     return outputString
 
+class Token:
+    def __init__(self, string):
+        self.chars = []
+        for each in string:
+            self.chars.append(Char(each))
+
 class Char:
     """
     char info, each char info
@@ -368,6 +381,11 @@ class Char:
     def __init__(self, string):
         self.char = self.normalize(string)
         self.phone = self.phonedict[self.char]
+        self.onset = ""
+        self.nu = ""
+        self.coda = ""
+        self.tone = ""
+        self.stress = False
 
     def normalize(self, string):
         string = re.sub("，", "sil_200", string)
@@ -422,37 +440,58 @@ def main():
     #     wordinfo = hkcan_corpus.search(character=each)
         # pprint(len(wordinfo))
         # pprint(wordinfo[:3])
+    
+    for eachtoken in inputseq.tokens:
+        for eachchar in eachtoken.chars:
+ 
+            eachchar.eachphone = simpleaudio.Audio()
 
-    # Turn to class instance
-    index_of_item = 0
-    for each in inputseq.tokens:
-        inputseq.tokens[index_of_item] = Char(each)
-        index_of_item += 1
+            # Audio instance to handle audio information
+            sound_obj = simpleaudio.Audio(rate=48000)
 
-    for each in inputseq.tokens:
-
-        each.eachphone = simpleaudio.Audio()
-
-        # Audio instance to handle audio information
-        sound_obj = simpleaudio.Audio(rate=48000)
-
-        if each.phone[0] in ["sil_200","sil_400"]:
-            if each.phone[0] == "sil_200":
-                sound_obj.create_noise(9600,0)
-            if each.phone[0] == "sil_400":
-                sound_obj.create_noise(19200,0)
-            each.eachphone.data = sound_obj.data
-        else:
-            phone = str(each.phone[0])
-            if not phone[-1].isdigit():
-                phone = phone + "5"
-            each.path = path + phone + ".wav"
-            each.eachphone.load(each.path)
+            if eachchar.phone[0] in ["sil_200","sil_400"]:
+                if eachchar.phone[0] == "sil_200":
+                    sound_obj.create_noise(9600,0)
+                if eachchar.phone[0] == "sil_400":
+                    sound_obj.create_noise(19200,0)
+                eachchar.eachphone.data = sound_obj.data
+            else:
+                phone = str(eachchar.phone[0])
+                if not phone[-1].isdigit():
+                    phone = phone + "5"
+                eachchar.path = path + phone + ".wav"
+                eachchar.eachphone.load(eachchar.path)
 
     output = simpleaudio.Audio()
 
-    for each in inputseq.tokens:
-        output.data = np.concatenate((output.data, each.eachphone.data))
+    for eachtoken in inputseq.tokens:
+        for eachchar in eachtoken.chars:
+            output.data = np.concatenate((output.data, eachchar.eachphone.data))
+
+    # for each in inputseq.tokens:
+
+    #     each.eachphone = simpleaudio.Audio()
+
+    #     # Audio instance to handle audio information
+    #     sound_obj = simpleaudio.Audio(rate=48000)
+
+    #     if each.phone[0] in ["sil_200","sil_400"]:
+    #         if each.phone[0] == "sil_200":
+    #             sound_obj.create_noise(9600,0)
+    #         if each.phone[0] == "sil_400":
+    #             sound_obj.create_noise(19200,0)
+    #         each.eachphone.data = sound_obj.data
+    #     else:
+    #         phone = str(each.phone[0])
+    #         if not phone[-1].isdigit():
+    #             phone = phone + "5"
+    #         each.path = path + phone + ".wav"
+    #         each.eachphone.load(each.path)
+
+    # output = simpleaudio.Audio()
+
+    # for each in inputseq.tokens:
+    #     output.data = np.concatenate((output.data, each.eachphone.data))
 
     # Step 5 - Further adjustment on overall volume to the final output (if the user use -v <0-100>)
     output = adjust_volume(volume=args.volume, object=output)
@@ -465,4 +504,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
