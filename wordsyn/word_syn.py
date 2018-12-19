@@ -181,8 +181,16 @@ class Sequence:
     def sayText(self,string):
         self.utterance = string
         self.norm_utterance = self.normalize(self.utterance) 
+        # self.tokens = self.word_seg(self.norm_utterance)
         self.tokens = list(self.norm_utterance)
         
+    # FOLLOWUP: SUPER SLOW!
+    def word_seg(self, string):
+        """Word seg"""
+        seg = pkuseg.pkuseg()   #以默认配置加载模型
+        tokens = seg.cut(string)	#进行分词
+        return tokens
+
     def normalize(self, string):
         string = self.punct_conversion(string)
         # Convert S2T or T2S to avoid mixed variaty text encoding
@@ -318,13 +326,6 @@ class Sequence:
             number_words = number_words + dict_digit[tens] + "十" + dict_digit[remainder]
         # Return the word form of number expressions
         return number_words
-
-    # FOLLOWUP: SUPER SLOW!
-    def word_seg(self, string):
-        """Word seg"""
-        seg = pkuseg.pkuseg()   #以默认配置加载模型
-        tokens = seg.cut(string)	#进行分词
-        return tokens
 
     def print_seq_info(self):
         pprint("Surface utterance sequence: {}".format(self.utterance))
