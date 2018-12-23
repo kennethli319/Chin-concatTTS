@@ -183,9 +183,9 @@ class Sequence:
     def sayText(self,string):
         self.utterance = string
         self.norm_utterance = self.normalize(self.utterance) 
-        # self.tokens = self.word_seg(self.norm_utterance)
+        self.seglist = self.word_seg(self.norm_utterance)
         self.tokens = []
-        for each in self.norm_utterance:
+        for each in self.seglist:
             self.tokens.append(Token(each))
 
     # FOLLOWUP: SUPER SLOW!
@@ -372,6 +372,9 @@ class Sequence:
 
 class Token:
     def __init__(self, string):
+
+        self.token = []
+
         self.chars = []
         for each in string:
             self.chars.append(Char(each))
