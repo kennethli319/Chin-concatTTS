@@ -5,7 +5,7 @@
 New user please install: 
     pip install -U pycantonese
     pip install opencc-python-reimplemented
-    pip install pkuseg
+    pip install jieba
 
 Usage:
     python word_syn.py <input_sequence> <language: c or p>
@@ -85,8 +85,10 @@ import simpleaudio
 import pycantonese as pc
 # New user please install: pip install opencc-python-reimplemented
 from opencc import OpenCC
-# New user please install: pip install pkuseg
-import pkuseg
+# REMOVED: New user please install: pip install pkuseg
+# REMOVED: import pkuseg
+# New user please install: pip install jieba
+import jieba
 
 # (PART 1) Argv management and global variables
 # (1.1) - Argv to argparse
@@ -187,7 +189,8 @@ class Sequence:
     def sayText(self,string):
         self.utterance = string
         self.norm_utterance = self.normalize(self.utterance) 
-        self.seglist = self.word_seg(self.norm_utterance)
+        self.seglist = jieba.cut(self.norm_utterance, cut_all=False)
+        # self.seglist = self.word_seg(self.norm_utterance)
         self.tokens = []
         for each in self.seglist:
             self.tokens.append(Token(each))

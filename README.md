@@ -26,8 +26,8 @@ Example:<br>
 23 DEC - Done crossfade<br> 
 23 DEC - Updated cantonese phonedict (according to website and hkcan corpus per percentage)<br> 
 <br> 
-1 - check sim chin / tran chin, if option given = follow option, if not check number of words in sim, if > 50%, mandarin else cantonese<br> 
-2 - cantonese corpus = very slow -> change it to a txt file with count / % only <br> 
+1 - [DONE-23dec] check sim chin / tran chin+ convert
+2 - [DONE-23dec] cantonese corpus = very slow -> change it to a txt file with count / % only <br> 
 3 - [DONE-18dec] change chin char (simplified chinese vs traditional chinese)<br> 
 4 - [H-DONE-18dec] word seg: use pku module, but not yet merge to the structure<br> 
 5 - POS tag<br> 
