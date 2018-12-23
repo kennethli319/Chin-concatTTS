@@ -98,6 +98,8 @@ parser.add_argument('phrase', nargs=1, help="The phrase to be synthesised")
 parser.add_argument('--language', "-l", action="store", dest="language", type=str, help="Choose the language for output", default=None)
 parser.add_argument('--play', '-p', action="store_true", default=False, help="Play the output audio")
 parser.add_argument('--outfile', '-o', action="store", dest="outfile", type=str, help="Save the output audio to a file", default=None)
+parser.add_argument('--crossfade', '-c', action="store_true", default=False,
+					help="Enable slightly smoother concatenation by cross-fading between tokens")
 parser.add_argument('--volume', '-v', default=None, type=int, help="An int between 0 and 100 representing the desired volume")
 parser.add_argument('--speed', '-s', default=None, type=float, help="A float between 0 - 3 representing the desired speed")
 # FOLLOWUP: Add -> voice options? speed? emotion? 
@@ -191,6 +193,7 @@ class Sequence:
     # FOLLOWUP: SUPER SLOW!
     def word_seg(self, string):
         """Word seg"""
+        print('Around 15s:')
         seg = pkuseg.pkuseg()   #以默认配置加载模型
         tokens = seg.cut(string)	#进行分词
         return tokens
@@ -333,8 +336,9 @@ class Sequence:
 
     def print_seq_info(self):
         pprint("Surface utterance sequence: {}".format(self.utterance))
+        print()
         pprint("Normalized utterance sequence: {}".format(self.norm_utterance))
-        
+        print()
         tokenlist = [] 
         for eachtoken in self.tokens:
             token = ""
@@ -342,6 +346,7 @@ class Sequence:
                 token = token + eachchar.char
             tokenlist.append(token)
         pprint("List of tokens: {}".format(tokenlist))
+        print()
 
         charlist = [] 
         for eachtoken in self.tokens:
@@ -349,6 +354,7 @@ class Sequence:
                 charlist.append(eachchar.char)
         
         pprint("List of chars: {}".format(charlist))
+        print()
 
     # def strB2Q(ustring):
     #     # modified from https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/373914/
@@ -486,10 +492,57 @@ def main():
 
     output = simpleaudio.Audio()
 
+    # for eachtoken in inputseq.tokens:
+    #     for eachchar in eachtoken.chars:
+    #         output.data = np.concatenate((output.data, eachchar.eachphone.data))
+    
+    # Variable to track diphone index and processing char_index
+    char_index = 0
+    # Normal concatenation without smoother
+    charlist = []
     for eachtoken in inputseq.tokens:
         for eachchar in eachtoken.chars:
-            output.data = np.concatenate((output.data, eachchar.eachphone.data))
+            charlist.append(eachchar.char)
+    
+    for eachtoken in inputseq.tokens:
+        for eachchar in eachtoken.chars:
+            temp_diphone = simpleaudio.Audio(rate=32000)
+            temp_diphone.data = eachchar.eachphone.data
+            if args.crossfade == False:
+                output.data = np.concatenate((output.data, temp_diphone.data))
+            # If smoother is used, implement Extension E - Smoother Concatenation
+            else:            
+                adjust_level = 0.0
+                # This loop rescales the 320 data points (10 msc) near the both edges of the diphone
+                for index in range(0,321):    
+                    if char_index > 0:
+                        # Except the first diphone:
+                        # Scale the data points in the initial 10 msc of current working diphone
+                        # Order: Start scaling from the 1st point, 2nd, 3rd... througout the loop (From edge of diphone towards the middle)
+                        temp_diphone.data[index] = temp_diphone.data[index] * adjust_level/320.0
+                    if char_index < len(charlist)-1:
+                        # Except the last diphone:
+                        # Scale the data points in the last 10 msc of of current working diphone
+                        # Order: Start scaling from the last point, 2nd last, 3rd last... througout the loop (From edge of diphone towards the middle)
+                        temp_diphone.data[-(index+1)] = temp_diphone.data[-(index+1)] * adjust_level/320.0
+                    # Turn louder when moving inward in the next round of the loop
+                    adjust_level+=1
+                
+                # After rescale all, seperate the whole diphone into two portions: (1) initial 10msc, and (2) everything after 10msc
+                np.initial10msc = temp_diphone.data[:320]
+                np.after10msc = temp_diphone.data[320:]
 
+                # Combine diphone portions together in the output.data
+                if char_index == 0:
+                    # For the 1st diphone, concatenate the whole rocessed diphone data
+                    output.data = np.concatenate((output.data, temp_diphone.data))
+                else:
+                    # For later diphones, addup/cross-fade the first 10 msc of the current diphone with last 10 msc of the previous diphone (which saved in the output.data in the previous round)
+                    output.data[-320:] = output.data[-320:] + np.initial10msc
+                    # Concatenate the remaining part of the processed diphone data
+                    output.data = np.concatenate((output.data, np.after10msc))
+            # Increase monitereing index
+            char_index += 1
     # for each in inputseq.tokens:
 
     #     each.eachphone = simpleaudio.Audio()
