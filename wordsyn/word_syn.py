@@ -11,8 +11,8 @@ Usage:
     python word_syn.py <input_sequence> <language: c or p>
 
 Example:
-    python3 word_syn.py 1/1/2001，999！翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。 -l p -p -v 80
-    python3 word_syn.py 1/01/1991，32。翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。 -l c -p -v 80
+    python3 word_syn.py "1/1/2001，999！翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。" -l p -p -v 80 -c
+    python3 word_syn.py "1/01/1991，32。翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。" -l c -p -v 80 -c
 """
 
 # LOGBK and PROBLEMS
@@ -21,6 +21,8 @@ Example:
 18 DEC - Done overall documentation
 19 DEC - (ING) Class structure -> token -> multichar prob!
 19 DEC - NSW Date conversion
+23 DEC - Done crossfade
+23 DEC - Updated cantonese phonedict (according to website and hkcan corpus per percentage)
 
 1 - check sim chin / tran chin, if option given = follow option, if not check number of words in sim, if > 50%, mandarin else cantonese
 2 - cantonese corpus = very slow -> change it to a txt file with count / % only 
@@ -492,10 +494,6 @@ def main():
 
     output = simpleaudio.Audio()
 
-    # for eachtoken in inputseq.tokens:
-    #     for eachchar in eachtoken.chars:
-    #         output.data = np.concatenate((output.data, eachchar.eachphone.data))
-    
     # Variable to track diphone index and processing char_index
     char_index = 0
     # Normal concatenation without smoother
@@ -506,10 +504,14 @@ def main():
     
     for eachtoken in inputseq.tokens:
         for eachchar in eachtoken.chars:
-            temp_diphone = simpleaudio.Audio(rate=32000)
+            empty_spacing = simpleaudio.Audio(rate=16000)
+            empty_spacing.create_noise(40,0)
+
+            temp_diphone = simpleaudio.Audio(rate=16000)
             temp_diphone.data = eachchar.eachphone.data
             if args.crossfade == False:
                 output.data = np.concatenate((output.data, temp_diphone.data))
+                output.data = np.concatenate((output.data, empty_spacing.data))
             # If smoother is used, implement Extension E - Smoother Concatenation
             else:            
                 adjust_level = 0.0
@@ -543,31 +545,7 @@ def main():
                     output.data = np.concatenate((output.data, np.after10msc))
             # Increase monitereing index
             char_index += 1
-    # for each in inputseq.tokens:
-
-    #     each.eachphone = simpleaudio.Audio()
-
-    #     # Audio instance to handle audio information
-    #     sound_obj = simpleaudio.Audio(rate=48000)
-
-    #     if each.phone[0] in ["sil_200","sil_400"]:
-    #         if each.phone[0] == "sil_200":
-    #             sound_obj.create_noise(9600,0)
-    #         if each.phone[0] == "sil_400":
-    #             sound_obj.create_noise(19200,0)
-    #         each.eachphone.data = sound_obj.data
-    #     else:
-    #         phone = str(each.phone[0])
-    #         if not phone[-1].isdigit():
-    #             phone = phone + "5"
-    #         each.path = path + phone + ".wav"
-    #         each.eachphone.load(each.path)
-
-    # output = simpleaudio.Audio()
-
-    # for each in inputseq.tokens:
-    #     output.data = np.concatenate((output.data, each.eachphone.data))
-
+    
     # Step 5 - Further adjustment on overall volume to the final output (if the user use -v <0-100>)
     output = adjust_volume(volume=args.volume, object=output)
 
