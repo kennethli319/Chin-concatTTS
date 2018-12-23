@@ -4,18 +4,15 @@ import json
 word2phone = dict([])
 wordlist = list()
 
-with open('phonedict', 'r') as f:
-# with open('phonedict_pth', 'r') as f:
+with open('output2.txt', 'r') as f:
 
     lines = f.readlines()
 
     for eachline in lines:
-        eachline = re.sub(', ', ' ', eachline) # split words by space instead of comma
-        eachline = re.sub('\t', ' ', eachline) # turn the tab to space (all split by space now)
         wordlist = eachline.split()
         
-        phone = wordlist[0]
-        words = wordlist[1:]
+        phone = wordlist[1]
+        words = wordlist[0]
 
         for eachword in words:
 
@@ -28,4 +25,5 @@ with open('phonedict', 'r') as f:
 
 # outfile = open('phonedict_dict', 'w+')
 # outfile = open('phonedict_dict_pth', 'w+')
+outfile = open('phonedict_dict_can', 'w+')
 outfile.write(json.dumps(word2phone))

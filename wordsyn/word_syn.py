@@ -11,8 +11,8 @@ Usage:
     python word_syn.py <input_sequence> <language: c or p>
 
 Example:
-    python3 word_syn.py 1/1/2001，999翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。 -l p -p -v 80
-    python3 word_syn.py 1/01/1991，32翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。 -l c -p -v 80
+    python3 word_syn.py 1/1/2001，999！翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。 -l p -p -v 80
+    python3 word_syn.py 1/01/1991，32。翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。 -l c -p -v 80
 """
 
 # LOGBK and PROBLEMS
@@ -77,6 +77,8 @@ from pprint import pprint
 # Please put the py file in the same dir
 # FOLLOWUP: later should optimize this and re-write the load methods
 import simpleaudio
+# import eng_diphone_synth
+
 # New user please install: pip install -U pycantonese
 import pycantonese as pc
 # New user please install: pip install opencc-python-reimplemented
@@ -136,7 +138,7 @@ def assign_paths(language):
     # Cantonese
     if language == "c":
         path = args.canPhones
-        dictpath = 'phonedict_dict'
+        dictpath = 'phonedict_dict_can'
     # Mandarin
     elif language == "p":
         path = args.mandPhones
@@ -347,6 +349,7 @@ class Sequence:
                 charlist.append(eachchar.char)
         
         pprint("List of chars: {}".format(charlist))
+
     # def strB2Q(ustring):
     #     # modified from https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/373914/
     #     # DOESNT WORK SAD
@@ -431,10 +434,10 @@ def save(output_file=None, object=None):
 
 def save_pickle(output_file=None, object=None):
     """
-    Description: Basic user interface to save the audio
+    Description: Basic user interface to save the pickle file 
     """
     if output_file != None:
-        with open(output_file, 'wb') as out:
+        with open(output_file+'.pickle', 'wb') as out:
             pickle.dump(object, out)
 
 def play_audio(play=False, object=None):
@@ -515,9 +518,8 @@ def main():
     # Step 6 - Save it to the target file (if the user use -o <args.outfile>)
     save(output_file=args.outfile, object=output)
 
-    save_pickle(output_file=args.outfile+'.pickle', object=output)
-
-    
+    save_pickle(output_file=args.outfile, object=output)
+        
     # Step 7 - Play the final sound output (if the user use -p)
     play_audio(play=args.play, object=output)
 
