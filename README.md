@@ -3,14 +3,16 @@ Cantonese and Mandarin concatenation TTS system in Python <br>
 For DNN TTS, please check https://github.com/kennethli319/Chin-dnnTTS<br> 
 <br> 
 # Usage
-"""<br> 
-New user please install: <br> 
+<br> 
+New user please install the following external modules: <br> 
     pip install -U pycantonese<br> 
     pip install opencc-python-reimplemented<br> 
     pip install pkuseg<br> 
 <br> 
 Usage:<br> 
-    python word_syn.py <input_sequence> <language: c or p><br> 
+```
+    python word_syn.py <input_sequence> <-language c or p> <-play> <-volume 0-100> <-crossfade> <-output filename><br> 
+```
 <br> 
 Example:<br> 
     python3 word_syn.py "1/1/2001，999！翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。" -l p -p -v 80 -c<br> 
