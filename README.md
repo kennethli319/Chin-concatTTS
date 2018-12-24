@@ -16,9 +16,9 @@ New user please install the following external modules: <br>
 <br> 
 <b>Example: </b> <br> 
     python3 word_syn.py "1/1/2001，999！翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。" -l p -p -v 80 -c -o output_mandarin.wav<br> 
-    <a href="https://github.com/kennethli319/Chin-concatTTS/raw/master/wordsyn/output_mandarin.wav"> output_mandarin.wav </a> <br>
+    <a href="https://drive.google.com/open?id=16t2mE66eJdZEL4jB1_h01Q__zcg5vUax"> output_mandarin.wav </a> <br>
     python3 word_syn.py "1/01/1991，32。翻译都要执行多个翻译系统，这带来巨大的计算成本。如今，许多领域都正在被神经网路技术颠覆。" -l c -p -v 80 -c -o output_cantonese.wav<br> 
-    <a href="https://github.com/kennethli319/Chin-concatTTS/raw/master/wordsyn/output_cantonese.wav"> output_cantonese.wav </a> <br>
+    <a href="https://drive.google.com/open?id=10DRGh6Lf3ABBM9Kj1bSCjM2qj7sjRhr6"> output_cantonese.wav </a> <br>
     
 """<br> 
 <br> 
